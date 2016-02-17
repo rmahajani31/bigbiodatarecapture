@@ -36,7 +36,7 @@ def parseAllPagesWithImages(pdfPath, outputImageFolder):
         # pdb.set_trace() # Start debugging
         imageCount = parseLayout(layout, outputImageFolder, imageCount)
         text = retstr.getvalue()
-        txtFile = open('' + outputImageFolder + '/Paper:' + paperName + 'Page' + str(i+1) + '.txt', 'w')
+        txtFile = open('' + outputImageFolder + '/Paper' + paperName + 'Page' + str(i+1) + '.txt', 'w')
         txtFile.write(text)
         txtFile.close()
 
