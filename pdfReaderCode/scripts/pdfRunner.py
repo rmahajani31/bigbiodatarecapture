@@ -1,7 +1,7 @@
-from parser import parsePagesWithImages
+from parser import parseAllPagesWithImages
 
 pdfpath = "../papers/1.pdf"
 outputPath = "../paperAnalysis/1.txt"
 imageFolder = "../paperAnalysis/"
 
-parsePagesWithImages(pdfpath, imageFolder)
+parseAllPagesWithImages(pdfpath, imageFolder)

@@ -6,8 +6,10 @@ from cStringIO import StringIO
 import sys
 from binascii import b2a_hex
 import os.path
+import random
+import pdb
 
-def parsePagesWithImages(pdfPath, outputImageFolder):
+def parseAllPagesWithImages(pdfPath, outputImageFolder):
     resourceMgr = PDFResourceManager()
     retstr = StringIO()
     codec = 'utf-8'
@@ -21,19 +23,16 @@ def parsePagesWithImages(pdfPath, outputImageFolder):
     maxpages = 0
     caching = True
     pagenos = set()
-    count = 1
+    imageCount = 1
 
     for i, page in enumerate(PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password, caching=caching, check_extractable=True)):
-        print(count)
         generalInterp.process_page(page)
         textInterp.process_page(page)
         layout = device.get_result()
-        num = parseLayout(layout, outputImageFolder, count)
-        if num:
-            num += 1
-            count = num
+        # pdb.set_trace() # Start debugging
+        imageCount = parseLayout(layout, outputImageFolder, imageCount)
         text = retstr.getvalue()
-        txtFile = open(''+outputImageFolder+'/Paper1Page' + str(i) + '.txt', 'w')
+        txtFile = open(''+outputImageFolder+'/Paper1Page' + str(i+1) + '.txt', 'w')
         txtFile.write(text)
         txtFile.close()
 
@@ -43,31 +42,34 @@ def parsePagesWithImages(pdfPath, outputImageFolder):
     retstr.close()
     # print text
 
-def parseLayout(layout, outputImageFolder, count):
+def parseLayout(layout, outputImageFolder, numImages):
     """Function to recursively parse the layout tree."""
     for lt_obj in layout:
         if isinstance(lt_obj, LTImage):
-            print "IMAGE OBJECT"
-            savedFile = saveImage(lt_obj, outputImageFolder, count)
+            savedFile = saveImage(lt_obj, outputImageFolder, numImages)
             if savedFile:
+                numImages += 1
                 print "Image saved"
-                return (count + 1)
+                # print "Image number is ", numImages
             else:
                 print >> sys.stderr, "error saving image", lt_obj.__repr__
                 print "Error Saving Image"
         elif isinstance(lt_obj, LTFigure):
-            parseLayout(lt_obj, outputImageFolder, count)
+            # print "Recursive call"
+            parseLayout(lt_obj, outputImageFolder, numImages)
+    return numImages
 
-def saveImage(ltImage, outputImageFolder, count):
-    """Try to save teh image data from this LTImage object. Returns the file
+def saveImage(ltImage, outputImageFolder, numImages):
+    """Try to save the image data from this LTImage object. Returns the file
        if successful."""
     result = None
     if ltImage.stream:
         fileStream = ltImage.stream.get_rawdata()
         fileExt = determineImageType(fileStream[0:4])
         if fileExt:
-            # fileName = 'Im' + str(count) + fileExt
-            fileName = ltImage.name + fileExt
+            randomInt = int(random.random() * 1000)
+            fileName = ltImage.name + str(randomInt) + fileExt
+            # fileName = ltImage.name + str(numImages) + fileExt
             if writeFile(outputImageFolder, fileName, fileStream, flags="wb"):
                 result = fileName
     return result
