@@ -8,6 +8,8 @@ from binascii import b2a_hex
 import os.path
 import random
 import pdb
+import re
+import os.path
 
 def parseAllPagesWithImages(pdfPath, outputImageFolder):
     resourceMgr = PDFResourceManager()
@@ -24,6 +26,8 @@ def parseAllPagesWithImages(pdfPath, outputImageFolder):
     caching = True
     pagenos = set()
     imageCount = 1
+    match = re.search('/.+/(.+)\.pdf', pdfPath)
+    paperName = match.group(1)
 
     for i, page in enumerate(PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password, caching=caching, check_extractable=True)):
         generalInterp.process_page(page)
@@ -32,7 +36,7 @@ def parseAllPagesWithImages(pdfPath, outputImageFolder):
         # pdb.set_trace() # Start debugging
         imageCount = parseLayout(layout, outputImageFolder, imageCount)
         text = retstr.getvalue()
-        txtFile = open(''+outputImageFolder+'/Paper1Page' + str(i+1) + '.txt', 'w')
+        txtFile = open('' + outputImageFolder + '/Paper:' + paperName + 'Page' + str(i+1) + '.txt', 'w')
         txtFile.write(text)
         txtFile.close()
 
@@ -49,11 +53,14 @@ def parseLayout(layout, outputImageFolder, numImages):
             savedFile = saveImage(lt_obj, outputImageFolder, numImages)
             if savedFile:
                 numImages += 1
-                print "Image saved"
+                # print "Image saved"
                 # print "Image number is ", numImages
             else:
                 print >> sys.stderr, "error saving image", lt_obj.__repr__
-                print "Error Saving Image"
+                # randomInt = str(int(random.random() * 1000))
+                # fp = open(os.path.join(outputImageFolder, (randomInt + '.dat')), 'w')
+                # fp.write(lt_obj.stream.get_rawdata())
+                # fp.close()
         elif isinstance(lt_obj, LTFigure):
             # print "Recursive call"
             parseLayout(lt_obj, outputImageFolder, numImages)
@@ -65,6 +72,7 @@ def saveImage(ltImage, outputImageFolder, numImages):
     result = None
     if ltImage.stream:
         fileStream = ltImage.stream.get_rawdata()
+
         fileExt = determineImageType(fileStream[0:4])
         if fileExt:
             randomInt = int(random.random() * 1000)
