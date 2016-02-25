@@ -57,6 +57,8 @@ def parseLayout(layout, outputImageFolder, numImages):
                 # print "Image number is ", numImages
             else:
                 print >> sys.stderr, "error saving image", lt_obj.__repr__
+                filters = lt_obj.stream.get_filters()
+                print filters
                 # randomInt = str(int(random.random() * 1000))
                 # fp = open(os.path.join(outputImageFolder, (randomInt + '.dat')), 'w')
                 # fp.write(lt_obj.stream.get_rawdata())
@@ -72,7 +74,6 @@ def saveImage(ltImage, outputImageFolder, numImages):
     result = None
     if ltImage.stream:
         fileStream = ltImage.stream.get_rawdata()
-
         fileExt = determineImageType(fileStream[0:4])
         if fileExt:
             randomInt = int(random.random() * 1000)
@@ -86,7 +87,7 @@ def determineImageType(streamFirst4Bytes):
     """Find out the image file type based on the magic number comparison
        of the first 4 bytes"""
 
-    fileType = None
+    fileType = '.ppm'
     bytesAsHex = b2a_hex(streamFirst4Bytes)
     if bytesAsHex.startswith("ffd8"):
         fileType = '.jpeg'
