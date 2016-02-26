@@ -1,9 +1,14 @@
 # from parser import parseAllPagesWithImages
-from textParser import parseAllText
+from parser import parseAllText, parseTextAndImages
+import os
 
-pdfpath = "../papers/3.pdf"
-outputPath = "../paperAnalysis/3.txt"
-imageFolder = "../paperAnalysis/"
+allpapers = "../papers/"
+outputFolder = "../paperAnalysis/"
 
-# parseAllPagesWithImages(pdfpath, imageFolder)
-parseAllText(pdfpath, imageFolder)
+pdfpaths = os.listdir(os.path.join(os.getcwd(), allpapers))
+for path in pdfpaths:
+    path = os.path.join(allpapers, path)
+    user = raw_input("about to parse: " + path)
+    parseTextAndImages(path, outputFolder)
+
+# parseTextAndImages(pdfpath, outputFolder)
