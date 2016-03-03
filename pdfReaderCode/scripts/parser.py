@@ -43,4 +43,6 @@ def parseTextAndImages(pdfpath, outputFolder):
     if not path.isdir(outputImageFolder):
         os.makedirs(outputImageFolder)
     imageCommand = "pdfimages  " + pdfpath + " " + path.join(outputImageFolder, paperName)
+    print "imageCommand: " + imageCommand
+    raw_input("good?")
     Popen(imageCommand, shell=True)
